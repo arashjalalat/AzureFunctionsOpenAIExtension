@@ -23,14 +23,15 @@ public class Chat
         [HttpTrigger(AuthorizationLevel.Function, "put", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId)
     {
+        _logger.LogInformation($"Creating chat bot for chatId: {chatId}");
         var responseJson = new { chatId };
 
-        using StreamReader reader = new(req.Body);
+        StreamReader reader = new(req.Body);
 
-        string request = await reader.ReadToEndAsync();
+        string requestBody = await reader.ReadToEndAsync();
 
-        Request? createRequestBody = JsonSerializer.Deserialize<Request>(request) 
-            ?? throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
+        Request? createRequestBody = JsonSerializer.Deserialize<Request>(requestBody) 
+            ?? throw new ArgumentException("Invalid request body. Expected a JSON object with an 'instructions' property.");
         
         return new ChatOutput
         {
@@ -55,6 +56,7 @@ public class Chat
         string chatId,
         [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state)
     {
+        _logger.LogInformation($"Getting chat state for chatId: {chatId}");
         return new OkObjectResult(state);
     }
 
@@ -64,6 +66,7 @@ public class Chat
         [TextCompletionInput("{Prompt}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response,
         ILogger log)
     {
+        _logger.LogInformation("Received completion request");
         string text = response.Content;
         return new OkObjectResult(text);
     }
