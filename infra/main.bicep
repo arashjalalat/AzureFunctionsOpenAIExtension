@@ -14,16 +14,6 @@ param location string
 @description('FunctionApp Name')
 param appName string
 
-@description('Azure OpenAI Endpoint')
-param azureOpenAIEndpoint string
-
-@description('Azure OpenAI Key')
-@secure()
-param azureOpenAIKey string = ''
-
-@description('Chat Model Deployment Name')
-param chatModelDeploymentName string
-
 var functionAppName = '${abbrs.webSitesFunctions}${appName}${resourceToken}'
 var storageAccountName = '${abbrs.storageStorageAccounts}${toLower(substring(appName, 0, min(length(appName), 9)))}${resourceToken}'
 
@@ -103,9 +93,8 @@ module functionApp 'core/host/functions.bicep' = {
     managedIdentity: true 
     appSettings:{
       WEBSITE_RUN_FROM_PACKAGE: 1
-      AZURE_OPENAI_ENDPOINT: azureOpenAIEndpoint
-      AZURE_OPENAI_KEY: azureOpenAIKey
-      CHAT_MODEL_DEPLOYMENT_NAME: chatModelDeploymentName
+      AZURE_OPENAI_ENDPOINT: ai.outputs.endpoint
+      CHAT_MODEL_DEPLOYMENT_NAME: ai.outputs.deployments[0].name
     }
   }
   dependsOn: [
@@ -114,6 +103,32 @@ module functionApp 'core/host/functions.bicep' = {
     applicationInsights
   ]
 }
+
+module ai 'core/ai/cognitive-services/ai.bicep' = {
+  name: 'openai'
+  scope: resourceGroup(rg.name)
+  params: {
+    accountName: '${abbrs.cognitiveServicesAccounts}${resourceToken}'
+    location: 'eastus'
+    tags: tags
+    modelFormat: 'OpenAI'
+  }
+}
+
+module openaiAppAssignment 'core/security/role/assignment.bicep' = {
+  name: 'openai-role-assignment-read-app'
+  scope: resourceGroup(rg.name)
+  params: {
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
+    ) // Cognitive Services OpenAI User built-in role
+    principalId: functionApp.outputs.identityPrincipalId // Principal to assign role
+    principalType: 'None'
+  }
+}
+
+output roleAssignments array = [openaiAppAssignment.outputs.id]
 
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId

@@ -7,9 +7,6 @@
       },
       "location": {
         "value": "${AZURE_LOCATION}"
-      },
-      "azureOpenAIKey": {
-        "value": "${AZURE_OPENAI_KEY}"
       }
     }
 }
