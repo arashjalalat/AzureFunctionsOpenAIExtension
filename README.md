@@ -67,8 +67,8 @@ The infrastructure is defined using Bicep templates located in the `infra` direc
 - `infra/`: Contains Bicep templates for infrastructure deployment.
   - `main.bicep`: Main Bicep template for resource deployment.
   - `core/`: Contains submodules for specific resources.
-- `.azure/`: Azure-specific configuration files.
-- `azure.yaml`: Azure DevOps pipeline configuration.
+- `.azure/`: Environment variables used by `azd`.
+- `azure.yaml`: Configuration file with mapping between the application and infra resources.
 
 ## Running the Project
 
