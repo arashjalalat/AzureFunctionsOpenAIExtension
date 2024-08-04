@@ -1,6 +1,6 @@
 # AzureFunctionsOpenAIExtension
 
-This project demonstrates the integration of Azure Functions with the OpenAI extension. It includes infrastructure setup using Bicep templates and a .NET Azure Functions application.
+This project demonstrates the integration of Azure Functions with the OpenAI extension. It includes infrastructure setup using Bicep templates and the `azd` CLI, and a .NET Azure Functions application that serves as a chatbot and a completions API.
 
 ## Prerequisites
 
