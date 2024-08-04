@@ -75,6 +75,7 @@ The infrastructure is defined using Bicep templates located in the `infra` direc
 1. **Start the Azure Functions host:**
 
     ```sh
+    cd src
     func start
     ```
 

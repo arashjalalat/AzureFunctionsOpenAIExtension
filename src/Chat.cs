@@ -11,7 +11,7 @@ namespace AzureFunctionsOpenAIExtension;
 
 public class Chat
 {
-    private static ILogger<Chat> _logger;
+    private ILogger<Chat> _logger;
 
     public Chat(ILogger<Chat> logger)
     {
@@ -19,7 +19,7 @@ public class Chat
     }
 
     [Function(nameof(CreateChatBot))]
-    public static async Task<ChatOutput> CreateChatBot(
+    public async Task<ChatOutput> CreateChatBot(
         [HttpTrigger(AuthorizationLevel.Function, "put", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId)
     {
@@ -41,7 +41,7 @@ public class Chat
     }
 
     [Function(nameof(PostToChatBot))]
-    public static async Task<IActionResult> PostToChatBot(
+    public async Task<IActionResult> PostToChatBot(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId,
         [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
@@ -51,7 +51,7 @@ public class Chat
     }
 
     [Function(nameof(GetChatState))]
-    public static async Task<IActionResult> GetChatState(
+    public async Task<IActionResult> GetChatState(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId,
         [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state)
@@ -61,10 +61,9 @@ public class Chat
     }
 
     [Function(nameof(Completions))]
-    public static IActionResult Completions(
+    public IActionResult Completions(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
-        [TextCompletionInput("{Prompt}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response,
-        ILogger log)
+        [TextCompletionInput("{Prompt}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response)
     {
         _logger.LogInformation("Received completion request");
         string text = response.Content;
